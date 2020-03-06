@@ -8,7 +8,6 @@ var User = require('../models/user.model');
 const getAll = async (req, res) => {
   try {
     const users = await User.find({}).exec();
-    console.log(users);
     return res.status(200).json({
       message: "ok",
       status: 200,
@@ -23,12 +22,25 @@ const getAll = async (req, res) => {
 const getOne = async (req, res) => {
   try {
     const { id } = req.params;
-    const users = await User.findById(id).exec();
-    console.log(users);
-    return res.status(200).json({
-      message: "ok",
-      status: 200,
-      data: users
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "invalid id",
+        status: 400,
+        data: null
+      });
+    }
+    const user = await User.findById(id).exec();
+    if (user) {
+      return res.status(200).json({
+        message: "ok",
+        status: 200,
+        data: user
+      });
+    }
+    return res.status(404).json({
+      message: "not found",
+      status: 404,
+      data: null
     });
   } catch (e) {
     console.log(e);
@@ -41,7 +53,23 @@ const create = async (req, res) => {
     const { name, email } = req.body;
     const user = new User({ name, email });
     const savedUser = await user.save();
-    console.log(req.body);
+    res.status(200).json({
+      message: "created",
+      status: 201,
+      data: savedUser
+    });
+  } catch (e) {
+    console.log(typeof e);
+    console.log(e);
+    res.status(500).send("Unable to create user" || e.message);
+  }
+};
+
+const update = async (req, res) => {
+  try {
+    const { id, name, email } = req.body;
+    const user = new User({ name, email });
+    const savedUser = await user.save();
     res.status(200).json({
       message: "created",
       status: 201,
@@ -55,6 +83,7 @@ const create = async (req, res) => {
 
 module.exports = {
   getAll,
+  getOne,
   create
 };
 // router.get('/', (req, res) => {
