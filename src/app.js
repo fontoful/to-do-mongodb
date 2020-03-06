@@ -5,11 +5,13 @@ const logger = require('morgan');
 require('./config/mongoose');
 // main router to import all routes
 const mainRouter = require('./routes/routes');
-
+// init express app
 const app = express();
-
+// add logging
 app.use(logger('dev'));
+// add json support
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
