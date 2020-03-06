@@ -3,3 +3,18 @@
     margin: 0;
     padding: 0;
 }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+    background: rgba(48, 47, 47, 0.2);
+    color: #ffff;
+}
+
+ul {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
