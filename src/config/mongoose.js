@@ -1,8 +1,10 @@
 let mongoose = require('mongoose');
 // server localhost
-const server = '127.0.0.1:27017';
+const server = process.env.DB_HOST;
+// server port
+const port = process.env.DB_PORT;
 // default name
-const database = 'to-do';
+const database = process.env.DB_NAME;
 /**
  * Singleton class to init mongoose database
  */
