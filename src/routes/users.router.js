@@ -1,11 +1,16 @@
-var express = require('express');
-var router = express.Router();
-var { getAll, getOne, create, update } = require('../controllers/users.controller');
-/* GET users listing. */
+const router = require('express').Router();
+const { getAll, getOne, create, update, remove } = require('../controllers/users.controller');
+const isValidObjectId = require('../middlewares/isValidObjectId');
+// /users - get all users
 router.get('/', getAll);
-router.get('/:id', getOne);
+// /users/:id - get one user
+router.get('/:id', isValidObjectId, getOne);
+// /users - create an user
 router.post('/', create);
-router.put('/:id', update);
+// /users/:id - update an user
+router.put('/:id', isValidObjectId, update);
+// /users/:id - delete an user
+router.delete('/:id', isValidObjectId, remove);
 
-
+// export routes
 module.exports = router;
