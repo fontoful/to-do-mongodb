@@ -36,7 +36,7 @@ const register = async (req, res) => {
       }
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(500).send(e);
   }
 };
@@ -46,7 +46,7 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     //find an existing user
-    const user = await User.findOne({ email }).select('-password');
+    const user = await User.findOne({ email });
     if (!user) return res.status(400).json({
       message: "Email or password incorrect.",
       status: 400
@@ -61,6 +61,7 @@ const login = async (req, res) => {
       });
     }
   } catch (e) {
+    console.log(e);
     res.status(500).json(e);
   }
 };
