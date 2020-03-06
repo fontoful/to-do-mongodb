@@ -1,0 +1,10 @@
+.options {
+	display: flex;
+	flex-direction: column;
+	background: #e2e1e1;
+	width: 360px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+}

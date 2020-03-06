@@ -1,50 +1,50 @@
 header {
-    background: #c4c4c4;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    height: 89px;
-    position: relative;
+	position: relative;
+	background: #c4c4c4;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	height: 89px;
+	z-index: 3;
 }
 
 header .icon {
-    position: absolute;
-    left: 34px;
-    background: #a1a1a1;
-    padding: 2rem 0.5rem 2rem 0.5rem;
-    border-bottom-left-radius: 1rem;
-    border-bottom-right-radius: 1rem;
+	left: 34px;
+	background: #a1a1a1;
+	padding: 2rem 0.5rem 2rem 0.5rem;
+	border-bottom-left-radius: 1rem;
+	border-bottom-right-radius: 1rem;
 }
 
 header .icon h1 {
-    color: #000000;
-    font-size: 40px;
+	color: #000000;
+	font-size: 40px;
 }
 
 header h2 {
-    color: #000000;
-    font-size: 36px;
+	color: #000000;
+	font-size: 36px;
 }
 
 header nav {
-    font-size: 36px;
-    margin-right: 2rem;
+	font-size: 36px;
+	margin-right: 2rem;
 }
 
 header nav ul {
-    display: flex;
+	display: flex;
 }
 
 header nav ul li {
-    margin: 0 1rem 0 1rem;
+	margin: 0 1rem 0 1rem;
 }
 
 header .login {
-    display: flex;
-    justify-content: space-around;
-    width: 300px;
+	display: flex;
+	justify-content: space-around;
+	width: 300px;
 }
 
 header .login i {
-    font-size: 3rem;
+	font-size: 3rem;
 }
