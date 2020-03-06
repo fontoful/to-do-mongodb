@@ -1,13 +1,22 @@
-let mongoose = require('mongoose')
+const mongoose = require('mongoose')
+const { isEmail } = require('validator')
 
-let userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: isEmail,
+      message: props => `${props.value} is not a valid email! (user@domain.com)`
+    }
   },
   name: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: (v) => isNaN(v),
+      message: props => `${props.value} is not a valid name!`
+    }
   },
 });
 
