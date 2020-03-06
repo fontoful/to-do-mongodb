@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
+require('dotenv').config();
+
 // init mongoose Singleton
 require('./config/mongoose');
 // main router to import all routes
