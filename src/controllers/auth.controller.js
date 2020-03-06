@@ -13,8 +13,8 @@ const register = async (req, res) => {
     //find an existing user
     const user = await User.findOne({ email });
     if (user) return res.status(400).json({
-      text: "User already registered.",
-      code: 400
+      message: "User already registered.",
+      status: 400
     });
 
     const newUser = new User({
@@ -28,7 +28,7 @@ const register = async (req, res) => {
     const token = newUser.generateAuthToken();
     res.header("x-auth-token", token).json({
       message: 'ok',
-      code: 200,
+      status: 200,
       data: {
         _id: newUser._id,
         name: newUser.name,
@@ -48,15 +48,15 @@ const login = async (req, res) => {
     //find an existing user
     const user = await User.findOne({ email }).select('-password');
     if (!user) return res.status(400).json({
-      text: "Email or password incorrect.",
-      code: 400
+      message: "Email or password incorrect.",
+      status: 400
     });
     const passwordCorrect = await bcrypt.compare(password, user.password)
     if (passwordCorrect) {
       const token = user.generateAuthToken();
       res.header("x-auth-token", token).json({
         message: 'ok',
-        code: 200,
+        status: 200,
         data: token
       });
     }
