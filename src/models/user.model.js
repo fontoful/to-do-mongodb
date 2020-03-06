@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid name!`
     }
   },
+  password: {
+    type: String,
+    required: true
+  }
 });
 
 userSchema.methods.generateAuthToken = function () {

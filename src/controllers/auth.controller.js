@@ -8,8 +8,8 @@ const getCurrent = async (req, res) => {
 
 const register = async (req, res) => {
   // validate the request body first
-  const { email, password, name } = req.body;
   try {
+    const { email, password, name } = req.body;
     //find an existing user
     const user = await User.findOne({ email });
     if (user) return res.status(400).json({
@@ -17,26 +17,27 @@ const register = async (req, res) => {
       code: 400
     });
 
-    newUser = new User({
+    const newUser = new User({
       name,
       password,
       email
     });
-    user.password = await bcrypt.hash(user.password, 10);
-    await user.save();
+    newUser.password = await bcrypt.hash(newUser.password, 10);
+    await newUser.save();
 
-    const token = user.generateAuthToken();
+    const token = newUser.generateAuthToken();
     res.header("x-auth-token", token).json({
       message: 'ok',
       code: 200,
       data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email
       }
     });
   } catch (e) {
-    res.code(500).json(e);
+    console.log(e);
+    res.status(500).send(e);
   }
 };
 
@@ -60,12 +61,12 @@ const login = async (req, res) => {
       });
     }
   } catch (e) {
-    res.code(500).json(e);
+    res.status(500).json(e);
   }
 };
 
 module.exports = {
   getCurrent,
-  login, 
+  login,
   register
 };
