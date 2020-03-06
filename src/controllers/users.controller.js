@@ -1,4 +1,4 @@
-var User = require('../models/user.model');
+const User = require('../models/user.model');
 
 /**
  * Get all users in the database 
