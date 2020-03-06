@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var { getAll, create } = require('../controllers/users.controller');
+var { getAll, getOne, create } = require('../controllers/users.controller');
 /* GET users listing. */
 router.get('/', getAll);
+router.get('/:id', getOne);
 router.post('/', create);
 
 
