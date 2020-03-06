@@ -24,7 +24,7 @@ const getOne = async (req, res) => {
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({
-        message: "invalid id",
+        message: "user not found",
         status: 400,
         data: null
       });
@@ -43,8 +43,7 @@ const getOne = async (req, res) => {
       data: null
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).send("Unable to get users");
+    res.status(500).json(e);
   }
 };
 
@@ -53,91 +52,72 @@ const create = async (req, res) => {
     const { name, email } = req.body;
     const user = new User({ name, email });
     const savedUser = await user.save();
-    res.status(200).json({
+    return res.status(200).json({
       message: "created",
       status: 201,
       data: savedUser
     });
   } catch (e) {
-    console.log(typeof e);
-    console.log(e);
-    res.status(500).send("Unable to create user" || e.message);
+    if (e.name === "ValidationError") {
+      res.status(400).json({
+        message: "Invalid fields",
+        status: 400,
+      });
+    } else {
+      res.status(500).json({
+        message: "Unable to create user",
+        status: 500,
+      });
+    }
   }
 };
 
 const update = async (req, res) => {
   try {
-    const { id, name, email } = req.body;
-    const user = new User({ name, email });
-    const savedUser = await user.save();
-    res.status(200).json({
-      message: "created",
-      status: 201,
-      data: savedUser
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "user not found",
+        status: 400,
+        data: null
+      });
+    }
+    const { name, email } = req.body;
+    const user = await User.findByIdAndUpdate(id, { name, email }).exec();
+    if (user) {
+      return res.status(200).json({
+        message: "updated",
+        status: 201,
+        data: user
+      });
+    }
+    return res.status(400).json({
+      message: "user not found",
+      status: 400,
+      data: null
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).send("Unable to create user");
+    if (e.name === "ValidationError") {
+      res.status(400).json({
+        message: "Invalid fields",
+        status: 400,
+        // data: e
+      });
+    } else {
+      res.status(500).json({
+        message: "Unable to update user",
+        status: 500,
+        // data: e
+      });
+    }
   }
 };
+
+
 
 module.exports = {
   getAll,
   getOne,
-  create
+  create,
+  update
 };
-// router.get('/', (req, res) => {
-//   User.find((err, docs) => {
-//     if (!err) { res.send(docs); }
-//     else { console.log('Error in Retriving Employees :' + JSON.stringify(err, undefined, 2)); }
-//   });
-// });
-
-// router.get('/:id', (req, res) => {
-//   if (!ObjectId.isValid(req.params.id))
-//     return res.status(400).send(`No record with given id : ${req.params.id}`);
-
-//     User.findById(req.params.id, (err, doc) => {
-//     if (!err) { res.send(doc); }
-//     else { console.log('Error in Retriving Employee :' + JSON.stringify(err, undefined, 2)); }
-//   });
-// });
-
-// router.post('/', (req, res) => {
-//   var emp = new Employee({
-//     name: req.body.name,
-//     position: req.body.position,
-//     office: req.body.office,
-//     salary: req.body.salary,
-//   });
-//   emp.save((err, doc) => {
-//     if (!err) { res.send(doc); }
-//     else { console.log('Error in Employee Save :' + JSON.stringify(err, undefined, 2)); }
-//   });
-// });
-
-// router.put('/:id', (req, res) => {
-//   if (!ObjectId.isValid(req.params.id))
-//     return res.status(400).send(`No record with given id : ${req.params.id}`);
-
-//   var emp = {
-//     name: req.body.name,
-//     position: req.body.position,
-//     office: req.body.office,
-//     salary: req.body.salary,
-//   };
-//   Employee.findByIdAndUpdate(req.params.id, { $set: emp }, { new: true }, (err, doc) => {
-//     if (!err) { res.send(doc); }
-//     else { console.log('Error in Employee Update :' + JSON.stringify(err, undefined, 2)); }
-//   });
-// });
-
-// router.delete('/:id', (req, res) => {
-//   if (!ObjectId.isValid(req.params.id))
-//     return res.status(400).send(`No record with given id : ${req.params.id}`);
-
-//   Employee.findByIdAndRemove(req.params.id, (err, doc) => {
-//     if (!err) { res.send(doc); }
-//     else { console.log('Error in Employee Delete :' + JSON.stringify(err, undefined, 2)); }
-//   });
-// });
