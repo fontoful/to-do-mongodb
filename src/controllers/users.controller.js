@@ -67,9 +67,9 @@ const getOne = async (req, res) => {
  */
 const create = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, password } = req.body;
     // create new user to validate fields 
-    const user = new User({ name, email });
+    const user = new User({ name, email, password });
     // save created user
     const savedUser = await user.save();
     // reply with created user and 200 code
@@ -107,11 +107,11 @@ const update = async (req, res) => {
   try {
     const { id } = req.params;
     // if id is not provided or it's not a valid mongo id
-    const { name, email } = req.body;
+    const { name, email, password } = req.body;
     // options to run validators and return updated object
     const opts = { runValidators: true, new: true };
     // User.findByIdAndUpdate should return an user, if id and/or fields are invalid it'll throw an exception 
-    const user = await User.findByIdAndUpdate(id, { name, email }, opts).exec();
+    const user = await User.findByIdAndUpdate(id, { name, email, password }, opts).exec();
     // if an user was found
     if (user) {
       // reply with user and 200 code
