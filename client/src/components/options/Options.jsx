@@ -3,7 +3,7 @@ import "./Options.css";
 
 export const Options = () => {
     return (
-        <div>
+        <form>
             <div className="options">
                 <div className="add-todo">
                     <input
@@ -23,6 +23,6 @@ export const Options = () => {
                     </nav>
                 </div>
             </div>
-        </div>
+        </form>
     );
 };
