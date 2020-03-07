@@ -1,9 +1,13 @@
 const bcrypt = require("bcryptjs");
+const passport = require("passport");
 const User = require("../models/user.model");
 
 const getCurrent = async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
-  res.send(user);
+  res.status(200).json({
+    message: "Ok",
+    status: 200,
+    data: req.user
+  });
 };
 
 const register = async (req, res) => {
@@ -36,38 +40,54 @@ const register = async (req, res) => {
       }
     });
   } catch (e) {
-    // console.log(e);
-    res.status(500).send(e);
+    if (e.name === "ValidationError") {
+      // reply with error and 400 code
+      res.status(400).json({
+        message: "Invalid fields",
+        status: 400,
+      });
+    } else {
+      res.status(500).json({
+        message: "Unable to create user",
+        status: 500,
+      });
+    }
   }
 };
 
-const login = async (req, res) => {
-  // validate the request body first
-  const { email, password } = req.body;
-  try {
-    //find an existing user
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({
-      message: "Email or password incorrect.",
-      status: 400
-    });
-    const passwordCorrect = await bcrypt.compare(password, user.password)
-    if (passwordCorrect) {
-      const token = user.generateAuthToken();
-      res.header("x-auth-token", token).json({
-        message: 'ok',
-        status: 200,
-        data: token
+const logout = (req, res) => {
+  req.logout();
+  req.flash('success_msg', 'You are logged out');
+  res.status(200).json({
+    message: "Ok",
+    code: 200
+  });
+};
+
+const login = async (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) { return next(err); }
+    if (!user) {
+      return res.status(400).json({
+        message: "email or password incorrect",
+        code: 400
       });
     }
-  } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
+    req.logIn(user, function (err) {
+      if (err) { return next(err); }
+      return res.status(200).json({
+        message: "Ok",
+        code: 200,
+        data: user
+      });
+    });
   }
+  )(req, res, next);
 };
 
 module.exports = {
   getCurrent,
   login,
-  register
+  register,
+  logout
 };

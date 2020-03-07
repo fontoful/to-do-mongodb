@@ -1,11 +1,13 @@
 const router = require("express").Router();
-const passport = require("passport");
-const { getCurrent, login, register } = require('../controllers/auth.controller');
+const { getCurrent, login, register, logout } = require('../controllers/auth.controller');
+const { forwardAuthenticated, ensureAuthenticated } = require('../config/auth');
 
-router.get("/current", passport.authenticate('jwt', { session: false }), getCurrent);
+router.get("/current", ensureAuthenticated, getCurrent);
 
 router.post("/register", register);
 
 router.post("/login", login);
+
+router.post("/logout", logout);
 
 module.exports = router;
