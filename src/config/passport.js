@@ -1,22 +1,41 @@
-const JWTStrategy = require('passport-jwt').Strategy,
-  ExtractJwt = require('passport-jwt').ExtractJwt,
-  User = require('../models/user.model');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
 
-const opts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.SECRET
+// Load User model
+const User = require('../models/user.model');
+
+module.exports = (passport) => {
+  passport.use(
+    new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
+      // Match user
+      try {
+        const user = await User.findOne({
+          email: email
+        });
+        if (!user) {
+          return done(null, false, { message: 'That email is not registered' });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+          user.password = undefined;
+          return done(null, { ...user._doc });
+        } else {
+          return done(null, null, { message: 'Password incorrect' });
+        }
+      } catch (e) {
+        console.log(e);
+        return done(null, null, { message: 'Error', e });
+      }
+    })
+  );
+
+  passport.serializeUser(function (user, done) {
+    done(null, user._id);
+  });
+
+  passport.deserializeUser(function (id, done) {
+    User.findById(id, "-password", function (err, user) {
+      done(err, user._doc);
+    });
+  });
 };
-
-passport.use(new JWTStrategy(opts,
-  (jwtPayload, cb) => {
-
-    //find the user in db if needed
-    return User.findOneById(jwtPayload._id)
-      .then(user => {
-        return cb(null, user);
-      })
-      .catch(err => {
-        return cb(err);
-      });
-  }
-));
