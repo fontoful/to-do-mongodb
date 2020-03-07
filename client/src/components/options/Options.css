@@ -1,38 +1,52 @@
 .options {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: #e2e1e1;
-    width: 360px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    color: #0000;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	background: #e2e1e1;
+	width: 360px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	color: #0000;
 }
 
 .options .add-todo {
-    position: absolute;
-    top: 10rem;
+	position: absolute;
+	top: 10rem;
 }
 
 .options .add-todo input {
-    background: #c4c4c4;
-    color: #000000;
-    padding: 0.5rem 1rem;
-    font-size: 1.2rem;
-    border-radius: 0.3rem;
+	background: #c4c4c4;
+	color: #000000;
+	padding: 0.5rem 1rem;
+	font-size: 1.2rem;
+	border-radius: 0.3rem;
 }
 
 .options .lists h2 {
-    background: #c4c4c4;
-    padding: 0.2rem 1rem;
-    color: #000000;
-    position: absolute;
-    left: 0;
-    top: 18rem;
-    width: 200px;
-    text-align: center;
+	background: #c4c4c4;
+	padding: 0.2rem 1rem;
+	color: #000000;
+	position: absolute;
+	left: 0;
+	top: 18rem;
+	width: 200px;
+	text-align: center;
+}
+
+.options .lists ul {
+	position: absolute;
+	top: 23rem;
+	left: 3rem;
+	display: flex;
+	flex-direction: column;
+}
+
+.options .lists li {
+	color: #000000;
+	font-size: 1.4rem;
+	font-weight: bold;
 }
