@@ -1,4 +1,9 @@
 const Note = require('../models/note.model');
+const List = require('../models/list.model');
+const ERROR_MESSAGE_VALIDATION = 'Invalid fields';
+const ERROR_MESSAGE_NOT_FOUND_LIST = 'List not found';
+const ERROR_MESSAGE_NOT_FOUND = 'Note not found';
+const ERROR_MESSAGE_SERVER = 'Server error, please try again later';
 
 /**
  * Get all notes in the database 
@@ -19,7 +24,34 @@ const getAll = async (req, res) => {
   } catch (e) {
     // if any errors, reply with 500 code
     res.status(500).json({
-      message: "Unable to get notes",
+      message: ERROR_MESSAGE_SERVER,
+      code: 500
+    });
+  }
+};
+
+/**
+ * Get all notes from specific list in the database 
+ * - req.body must contain list id
+ * @param {Request} req 
+ * @param {Response} res 
+ */
+const getAllByListId = async (req, res) => {
+  try {
+    // get notes from database
+    const { id: listId } = req.body;
+    const { _id: userId } = req.user;
+    const notes = await Note.find({ userId, list: { _id: listId } }).exec();
+    // respond with 200 and notes 
+    res.status(200).json({
+      message: "Ok",
+      status: 200,
+      data: notes
+    });
+  } catch (e) {
+    // if any errors, reply with 500 code
+    res.status(500).json({
+      message: ERROR_MESSAGE_SERVER,
       code: 500
     });
   }
@@ -47,7 +79,7 @@ const getOne = async (req, res) => {
     } else {
       // if note is not found, reply with error and 404 code
       res.status(404).json({
-        message: "Note not found",
+        message: ERROR_MESSAGE_NOT_FOUND,
         status: 404,
         data: null
       });
@@ -56,7 +88,7 @@ const getOne = async (req, res) => {
   } catch (e) {
     // if any other errors, reply with 500 code
     res.status(500).json({
-      message: "Unable to get note",
+      message: ERROR_MESSAGE_SERVER,
       code: 500,
     });
   }
@@ -69,10 +101,18 @@ const getOne = async (req, res) => {
  */
 const create = async (req, res) => {
   try {
-    const { title, body } = req.body;
+    const { title, body, list: { name, _id: listId } } = req.body;
     const { _id: userId } = req.user;
+    // create new list to validate fields 
+    const list = await List.findById(listId).exec();
+    if (!list) {
+      return res.code(400).json({
+        message: ERROR_MESSAGE_NOT_FOUND_LIST,
+        code: 400
+      });
+    }
     // create new note to validate fields 
-    const note = new Note({ title, body, userId });
+    const note = new Note({ title, body, userId, list });
     // save created note
     const savedNote = await note.save();
     // reply with created note and 200 code
@@ -87,14 +127,14 @@ const create = async (req, res) => {
     if (e.name === "ValidationError") {
       // reply with error and 400 code
       res.status(400).json({
-        message: "Invalid fields",
+        message: ERROR_MESSAGE_VALIDATION,
         status: 400,
         e
       });
     } else {
       // if any other error, reply with message and 500 code
       res.status(500).json({
-        message: "Unable to create note",
+        message: ERROR_MESSAGE_SERVER,
         status: 500,
       });
     }
@@ -128,7 +168,7 @@ const update = async (req, res) => {
     } else {
       // if note was not found, reply with messageand 404 code
       res.status(404).json({
-        message: "note not found",
+        message: ERROR_MESSAGE_NOT_FOUND,
         status: 404,
         data: null
       });
@@ -139,13 +179,13 @@ const update = async (req, res) => {
     if (e.name === "ValidationError") {
       // reply with message and 400 code
       res.status(400).json({
-        message: "Invalid fields",
+        message: ERROR_MESSAGE_VALIDATION,
         status: 400,
       });
     } else {
       // reply with message and 500 code
       res.status(500).json({
-        message: "Unable to update note",
+        message: ERROR_MESSAGE_SERVER,
         status: 500,
       });
     }
@@ -183,7 +223,7 @@ const remove = async (req, res) => {
   } catch (e) {
     // if any other error, reply with message and 500 code
     res.status(500).json({
-      message: "Unable to remove note",
+      message: ERROR_MESSAGE_SERVER,
       status: 500,
     });
   }
