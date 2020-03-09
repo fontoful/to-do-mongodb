@@ -5,7 +5,9 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user.model');
 
 const ERROR_MESSAGE = "The email or password is incorrect."
-
+/**
+ * Export passport local strategy function 
+ */
 module.exports = (passport) => {
   passport.use(
     new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
@@ -36,7 +38,7 @@ module.exports = (passport) => {
       }
     })
   );
-
+    
   passport.serializeUser((user, done) => {
     // save user add to deserealize
     done(null, user._id);
