@@ -1,3 +1,6 @@
+/**
+ * Export configuration variables for app
+ */
 module.exports = function () {
   switch (process.env.NODE_ENV) {
     case 'development':
