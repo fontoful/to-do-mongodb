@@ -4,38 +4,51 @@ const bcrypt = require('bcryptjs');
 // Load User model
 const User = require('../models/user.model');
 
+const ERROR_MESSAGE = "The email or password is incorrect."
+
 module.exports = (passport) => {
   passport.use(
     new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
       // Match user
       try {
+        // find one by email
         const user = await User.findOne({
-          email: email
+          email
         });
+        // if user is not found
         if (!user) {
-          return done(null, false, { message: 'That email is not registered' });
+          return done(null, false, { message: ERROR_MESSAGE });
         }
+        // else, if found compare password hash
         const isMatch = await bcrypt.compare(password, user.password);
+        // if there's a match
         if (isMatch) {
-          user.password = undefined;
-          return done(null, { ...user._doc });
+          // remove password and return user
+          return done(null, { ...user._doc, password: undefined });
         } else {
-          return done(null, null, { message: 'Password incorrect' });
+          // return message if password is incorrect
+          return done(null, null, { message: ERROR_MESSAGE });
         }
       } catch (e) {
+        // return error message 
         console.log(e);
-        return done(null, null, { message: 'Error', e });
+        return done(null, null, { message: ERROR_MESSAGE, e });
       }
     })
   );
 
-  passport.serializeUser(function (user, done) {
+  passport.serializeUser((user, done) => {
+    // save user add to deserealize
     done(null, user._id);
   });
 
-  passport.deserializeUser(function (id, done) {
-    User.findById(id, "-password", function (err, user) {
-      done(err, user._doc);
-    });
+  passport.deserializeUser(async (id, done) => {
+    // return user to use in request
+    try {
+      const user = await User.findById(id, "-password").exec();
+      done(null, user);
+    } catch (e) {
+      done(null, null, { message: "User not found" })
+    }
   });
 };
