@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { getAll, getOne, create, update, remove } = require('../controllers/notes.controller');
-const { forwardAuthenticated, ensureAuthenticated } = require('../config/auth');
+const { ensureAuthenticated } = require('../config/auth');
 
 const isValidObjectId = require('../middlewares/isValidObjectId');
 
