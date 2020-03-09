@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const List = require('./list.model');
 
 const noteSchema = new mongoose.Schema({
   title: {
@@ -11,6 +12,10 @@ const noteSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.ObjectId,
+    required: true
+  },
+  list: {
+    type: List.Schema,
     required: true
   }
 });
