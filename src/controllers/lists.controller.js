@@ -12,7 +12,7 @@ const getAll = async (req, res) => {
   try {
     // get lists from database
     const { _id: userId } = req.user;
-    const lists = await List.find({ userId }).exec();
+    const lists = await List.find({ userId }).select("_id name ").exec();
     // respond with 200 and lists 
     res.status(200).json({
       message: "Ok",
