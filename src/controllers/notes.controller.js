@@ -124,6 +124,7 @@ const create = async (req, res) => {
   } catch (e) {
     // if any errors, check type of error
     // if mongoose validation error
+    console.log(e);
     if (e.name === "ValidationError") {
       // reply with error and 400 code
       res.status(400).json({
@@ -136,6 +137,7 @@ const create = async (req, res) => {
       res.status(500).json({
         message: ERROR_MESSAGE_SERVER,
         status: 500,
+        e
       });
     }
   }
