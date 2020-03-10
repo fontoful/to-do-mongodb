@@ -15,7 +15,7 @@ const noteSchema = new mongoose.Schema({
     required: true
   },
   list: {
-    type: List.Schema,
+    type: List.schema,
     required: true
   }
 });
