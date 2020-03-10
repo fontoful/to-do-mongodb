@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 const List = require('./list.model');
 
+// removing user id as it's already included in noteSchema
+const ListSchema = List.schema.clone()
+ListSchema.remove('userId');
+
 const noteSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -15,9 +19,10 @@ const noteSchema = new mongoose.Schema({
     required: true
   },
   list: {
-    type: List.schema,
+    type: ListSchema,
     required: true
   }
 });
+
 
 module.exports = mongoose.model('Note', noteSchema);
