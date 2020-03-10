@@ -4,7 +4,7 @@ const ERROR_MESSAGE_VALIDATION = 'Invalid fields';
 const ERROR_MESSAGE_NOT_FOUND_LIST = 'List not found';
 const ERROR_MESSAGE_NOT_FOUND = 'Note not found';
 const ERROR_MESSAGE_SERVER = 'Server error, please try again later';
-
+var ObjectId = require('mongoose').Types.ObjectId;
 /**
  * Get all notes in the database 
  * @param {Request} req 
@@ -14,7 +14,7 @@ const getAll = async (req, res) => {
   try {
     // get notes from database
     const { _id: userId } = req.user;
-    const notes = await Note.find({ userId }).exec();
+    const notes = await Note.find({ userId }).select("-userId").exec();
     // respond with 200 and notes 
     res.status(200).json({
       message: "Ok",
@@ -41,7 +41,7 @@ const getAllByListId = async (req, res) => {
     // get notes from database
     const { id: listId } = req.body;
     const { _id: userId } = req.user;
-    const notes = await Note.find({ userId, list: { _id: listId } }).exec();
+    const notes = await Note.find({ userId, list: { _id: listId } }).select("-userId -list").exec();
     // respond with 200 and notes 
     res.status(200).json({
       message: "Ok",
@@ -67,7 +67,7 @@ const getOne = async (req, res) => {
     const { id: _id } = req.params;
     const { _id: userId } = req.user;
     // search for note with id
-    const note = await Note.findOne({ _id, userId }).exec();
+    const note = await Note.findOne({ _id, userId }).select("-userId").exec();
     // if note is found
     if (note) {
       // reply with note and 200 code
@@ -101,12 +101,19 @@ const getOne = async (req, res) => {
  */
 const create = async (req, res) => {
   try {
-    const { title, body, list: { name, _id: listId } } = req.body;
+    const { title, body, listId } = req.body;
     const { _id: userId } = req.user;
-    // create new list to validate fields 
-    const list = await List.findById(listId).exec();
+    // check if listId is valid
+    if (!ObjectId.isValid(listId)) {
+      return res.status(400).json({
+        message: ERROR_MESSAGE_NOT_FOUND_LIST,
+        code: 400
+      });
+    }
+    // get list to embed document in note 
+    const list = await List.findOne({ _id: listId, userId }).select("id name").exec();
     if (!list) {
-      return res.code(400).json({
+      return res.status(400).json({
         message: ERROR_MESSAGE_NOT_FOUND_LIST,
         code: 400
       });
@@ -124,7 +131,6 @@ const create = async (req, res) => {
   } catch (e) {
     // if any errors, check type of error
     // if mongoose validation error
-    console.log(e);
     if (e.name === "ValidationError") {
       // reply with error and 400 code
       res.status(400).json({
@@ -143,7 +149,7 @@ const create = async (req, res) => {
   }
 };
 /**
- * Update an note 
+ * Update a note 
  * req.body must provide updating fields
  * req.params must provide valid note id
  * @param {Request} req 
@@ -152,9 +158,23 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const { id: _id } = req.params;
+    const { title, body, listId } = req.body;
     const { _id: userId } = req.user;
-    // if id is not provided or it's not a valid mongo id
-    const { title, body } = req.body;
+    // check if listId is valid
+    if (!ObjectId.isValid(listId)) {
+      return res.status(400).json({
+        message: ERROR_MESSAGE_NOT_FOUND_LIST,
+        code: 400
+      });
+    }
+    // get list to embed document in note 
+    const list = await List.findOne({ _id: listId, userId }).select("id name").exec();
+    if (!list) {
+      return res.status(400).json({
+        message: ERROR_MESSAGE_NOT_FOUND_LIST,
+        code: 400
+      });
+    }
     // options to run validators and return updated object
     const opts = { runValidators: true, new: true };
     // Note.findByIdAndUpdate should return an note, if id and/or fields are invalid it'll throw an exception 
@@ -178,6 +198,7 @@ const update = async (req, res) => {
   } catch (e) {
     // if any other error,check type of error
     // if mongoose validation error
+    console.log(e);
     if (e.name === "ValidationError") {
       // reply with message and 400 code
       res.status(400).json({
@@ -189,6 +210,7 @@ const update = async (req, res) => {
       res.status(500).json({
         message: ERROR_MESSAGE_SERVER,
         status: 500,
+        e
       });
     }
   }
