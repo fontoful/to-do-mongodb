@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
-const { isEmail } = require('validator')
-var Config = require('../config/config'),
-  conf = new Config();
+const { isEmail } = require('validator');
+
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -23,5 +22,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   }
-});
+}, { timestamps: { createdAt: 'createdAt' } });
+
 module.exports = mongoose.model('User', userSchema);
