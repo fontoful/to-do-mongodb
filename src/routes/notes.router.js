@@ -1,10 +1,10 @@
 const router = require('express').Router();
 const { getAll, getOne, create, update, remove } = require('../controllers/notes.controller');
-const { ensureAuthenticated } = require('../config/auth');
+const passport = require('passport');
 
 const isValidObjectId = require('../middlewares/isValidObjectId');
 
-router.use(ensureAuthenticated);
+router.use(passport.authenticate('jwt', { session: false }));
 // /users - get all users
 router.get('/', getAll);
 // /users/:id - get one user

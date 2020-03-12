@@ -1,10 +1,13 @@
 const bcrypt = require("bcryptjs");
-const passport = require("passport");
 const User = require("../models/user.model");
+const jwt = require('jsonwebtoken');
+const { limiterConsecutiveFailsByUsernameAndIP, limiterSlowBruteByIP } = require('../middlewares/rate-limiter');
+
 const ERROR_MESSAGE_AUTH = 'Email or password incorrect.';
 const ERROR_MESSAGE_ALREADY = "User already registered.";
 const ERROR_MESSAGE_VALIDATION = 'Invalid fields.';
 const ERROR_MESSAGE_SERVER = 'Unable to create user.';
+const ERROR_MESSAGE_TOO_MANY = "Too many failed attempts, try again later...";
 
 /**
  * Get current user from request if logged in
@@ -83,13 +86,11 @@ const register = async (req, res) => {
  */
 const logout = (req, res) => {
   // logout
-  req.logout();
-  // flash message
-  req.flash('success_msg', 'You are logged out');
+  // req.logout();
   // return response
   res.status(200).json({
     message: "Ok",
-    code: 200
+    status: 200
   });
 };
 
@@ -101,27 +102,57 @@ const logout = (req, res) => {
  * @param {Function} next 
  */
 const login = async (req, res, next) => {
-  // authenticate user using local strategy
-  passport.authenticate('local', (err, user, info) => {
-    // if error, pass to next function
-    if (err) { return next(err); }
-    // if user is not found, return error message and 400 code
-    if (!user) {
-      return res.status(400).json({
+  const promises = [];
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email }).exec();
+    if (user) {
+      // user is found
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        // password is correct
+        if (req.resUsernameAndIP !== null && req.resUsernameAndIP.consumedPoints > 0) {
+          // Reset on successful authorisation
+          promises.push(limiterConsecutiveFailsByUsernameAndIP.delete(req.usernameIPkey));
+        }
+        res.status(200).json({
+          message: "ok",
+          status: 200,
+          data: jwt.sign({
+            ...user.data,
+            password: undefined
+          }, process.env.SECRET)
+        });
+
+      } else {
+        // password is incorrect
+        promises.push(limiterConsecutiveFailsByUsernameAndIP.consume(req.usernameIPkey));
+        res.status(400).json({
+          message: ERROR_MESSAGE_AUTH,
+          code: 400
+        });
+      }
+    } else {
+      // user not found
+      promises.push(limiterSlowBruteByIP.consume(req.ipAddr));
+      res.status(400).json({
         message: ERROR_MESSAGE_AUTH,
         code: 400
       });
     }
-    req.logIn(user, function (err) {
-      if (err) { return next(err); }
-      return res.status(200).json({
-        message: "Ok",
-        code: 200,
-        data: user
-      });
+  } catch (e) {
+    console.log(e);
+    // res.set('Retry-After', String(Math.round(rlRejected.msBeforeNext / 1000)) || 1);
+    // res.status(429).send('Too Many Requests');
+    res.status(400).json({
+      message: ERROR_MESSAGE_AUTH,
+      code: 400,
+      e
     });
+  } finally {
+    req.countPromises = promises;
+    next();
   }
-  )(req, res, next);
 };
 // export functions
 module.exports = {
