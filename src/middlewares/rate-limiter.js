@@ -54,7 +54,10 @@ const checkIfAllowed = async (req, res, next) => {
 
   if (retrySecs > 0) {
     res.set('Retry-After', String(retrySecs));
-    res.status(429).send('Too Many Requests');
+    res.status(429).json({
+      message: "Too Many Requests, please try again later...",
+      status: 429
+    });
   } else {
     // if valid, next function
     req.usernameIPkey = usernameIPkey;
@@ -66,12 +69,9 @@ const checkIfAllowed = async (req, res, next) => {
 
 const updateCount = async (req, res, next) => {
   try {
-    const array = await Promise.all(req.countPromises);
-    console.log(array);
+    await Promise.all(req.countPromises);
   } catch (e) {
     console.log(e);
-    // res.set('Retry-After', String(Math.round(rlRejected.msBeforeNext / 1000)) || 1);
-    // res.status(429).send('Too Many Requests');
   }
 }
 

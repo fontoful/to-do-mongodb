@@ -115,13 +115,18 @@ const login = async (req, res, next) => {
           // Reset on successful authorisation
           promises.push(limiterConsecutiveFailsByUsernameAndIP.delete(req.usernameIPkey));
         }
+        const userData = {
+          ...user.data,
+          password: undefined
+        };
+        const token = jwt.sign(userData, process.env.SECRET);
         res.status(200).json({
           message: "ok",
           status: 200,
-          data: jwt.sign({
-            ...user.data,
-            password: undefined
-          }, process.env.SECRET)
+          data: {
+            token,
+            user: userData
+          }
         });
 
       } else {
