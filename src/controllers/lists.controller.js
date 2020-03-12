@@ -23,7 +23,7 @@ const getAll = async (req, res) => {
     // if any errors, reply with 500 code
     res.status(500).json({
       message: ERROR_MESSAGE_SERVER,
-      code: 500
+      status: 500
     });
   }
 };
@@ -52,7 +52,6 @@ const getOne = async (req, res) => {
       res.status(404).json({
         message: ERROR_MESSAGE_NOT_FOUND,
         status: 404,
-        data: null
       });
     }
 
@@ -60,7 +59,7 @@ const getOne = async (req, res) => {
     // if any other errors, reply with 500 code
     res.status(500).json({
       message: ERROR_MESSAGE_SERVER,
-      code: 500,
+      status: 500,
     });
   }
 };
@@ -133,7 +132,6 @@ const update = async (req, res) => {
       res.status(404).json({
         message: ERROR_MESSAGE_NOT_FOUND,
         status: 404,
-        data: null
       });
     }
   } catch (e) {
@@ -172,14 +170,12 @@ const remove = async (req, res) => {
       res.status(200).json({
         message: "Deleted",
         status: 200,
-        data: list
       });
     } else {
       // if list not found, reply with message and 404 code
       res.status(404).json({
         message: ERROR_MESSAGE_NOT_FOUND,
         status: 404,
-        data: null
       });
     }
 

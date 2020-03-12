@@ -25,7 +25,7 @@ const getAll = async (req, res) => {
     // if any errors, reply with 500 code
     res.status(500).json({
       message: ERROR_MESSAGE_SERVER,
-      code: 500
+      status: 500
     });
   }
 };
@@ -52,7 +52,7 @@ const getAllByListId = async (req, res) => {
     // if any errors, reply with 500 code
     res.status(500).json({
       message: ERROR_MESSAGE_SERVER,
-      code: 500
+      status: 500
     });
   }
 };
@@ -81,7 +81,7 @@ const getOne = async (req, res) => {
       res.status(404).json({
         message: ERROR_MESSAGE_NOT_FOUND,
         status: 404,
-        data: null
+        
       });
     }
 
@@ -89,7 +89,7 @@ const getOne = async (req, res) => {
     // if any other errors, reply with 500 code
     res.status(500).json({
       message: ERROR_MESSAGE_SERVER,
-      code: 500,
+      status: 500,
     });
   }
 };
@@ -107,7 +107,7 @@ const create = async (req, res) => {
     if (!ObjectId.isValid(listId)) {
       return res.status(400).json({
         message: ERROR_MESSAGE_NOT_FOUND_LIST,
-        code: 400
+        status: 400
       });
     }
     // get list to embed document in note 
@@ -115,7 +115,7 @@ const create = async (req, res) => {
     if (!list) {
       return res.status(400).json({
         message: ERROR_MESSAGE_NOT_FOUND_LIST,
-        code: 400
+        status: 400
       });
     }
     // create new note to validate fields 
@@ -164,21 +164,22 @@ const update = async (req, res) => {
     if (!ObjectId.isValid(listId)) {
       return res.status(400).json({
         message: ERROR_MESSAGE_NOT_FOUND_LIST,
-        code: 400
+        status: 400
       });
     }
     // get list to embed document in note 
     const list = await List.findOne({ _id: listId, userId }).select("id name").exec();
+    // if list is not valid, return error and 400 code
     if (!list) {
       return res.status(400).json({
         message: ERROR_MESSAGE_NOT_FOUND_LIST,
-        code: 400
+        status: 400
       });
     }
     // options to run validators and return updated object
     const opts = { runValidators: true, new: true };
     // Note.findByIdAndUpdate should return an note, if id and/or fields are invalid it'll throw an exception 
-    const note = await Note.findOneAndUpdate({ _id, userId }, { title, body }, opts).exec();
+    const note = await Note.findOneAndUpdate({ _id, userId }, { title, body, list }, opts).exec();
     // if an note was found
     if (note) {
       // reply with note and 200 code
@@ -192,7 +193,7 @@ const update = async (req, res) => {
       res.status(404).json({
         message: ERROR_MESSAGE_NOT_FOUND,
         status: 404,
-        data: null
+        
       });
     }
   } catch (e) {
@@ -233,14 +234,13 @@ const remove = async (req, res) => {
       res.status(200).json({
         message: "Deleted",
         status: 200,
-        data: note
       });
     } else {
       // if note not found, reply with message and 404 code
       res.status(404).json({
         message: "Note not found",
         status: 404,
-        data: null
+        
       });
     }
 
