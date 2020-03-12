@@ -1,6 +1,6 @@
-let mongoose = require('mongoose');
-var Config = require('./config'),
-  conf = new Config();
+const mongoose = require('mongoose');
+const Config = require('./config');
+const conf = new Config();
 // server localhost
 const server = conf.DB_HOST;
 // server port
